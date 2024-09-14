@@ -8,7 +8,7 @@ WITH cleaned_products AS (
     FROM {{ ref('raw_products') }}
 )
 
--- Select only one row per product_id (row_num = 1 ensures we only take the first occurrence)
+
 SELECT product_id, product_name, category, price
 FROM cleaned_products
 WHERE row_num = 1
