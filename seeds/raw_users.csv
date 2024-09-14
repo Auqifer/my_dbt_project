@@ -1,0 +1,6 @@
+user_id,user_name,email_address,sign_up_date,country
+1,John Doe,john@example.com,2021-05-01,USA
+2,Jane Smith,jane@example.com,2021-05-03,Canada
+3,Tom Brown,tom@example.com,2021-06-10,Germany
+4,John Dawson,john@example1.com,2021-05-02,Australia
+5,Emily White,emily@example.com,Invalid Date,UK

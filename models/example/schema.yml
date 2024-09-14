@@ -1,0 +1,119 @@
+version: 2
+
+models:
+  - name: stg_users
+    description: "Содержит стандартизированные данные пользователей из исходной таблицы raw.users."
+    columns:
+      - name: user_id
+        description: "Уникальный идентификатор пользователя."
+        tests:
+          - unique
+          - not_null
+      - name: user_name
+        description: "Имя пользователя в нижнем регистре."
+      - name: email_address
+        description: "Адрес электронной почты пользователя."
+        tests:
+        - not_null
+        - accepted_values:
+            values:
+              - r'^[\w\.-]+@[\w\.-]+\.\w+$'
+      - name: sign_up_date
+        description: "Дата регистрации пользователя в формате даты."
+      - name: country
+        description: "Страна пользователя."
+        tests:
+          - not_null
+      - name: record_loaded_at
+        description: "Дата и время загрузки записи."
+
+  - name: stg_orders
+    description: "Стандартизированные данные заказов из исходной таблицы raw.orders."
+    columns:
+      - name: order_id
+        description: "Уникальный идентификатор заказа."
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: "Идентификатор пользователя, который сделал заказ."
+      - name: product_id
+        description: "Идентификатор продукта, который был заказан."
+      - name: order_date
+        description: "Дата заказа в формате даты."
+      - name: quantity
+        description: "Количество заказанного товара."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "quantity > 0"
+      - name: price
+        description: "Цена за единицу товара."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "quantity > 0"
+
+  - name: stg_products
+    description: "Стандартизированные данные продуктов из исходной таблицы raw.products."
+    columns:
+      - name: product_id
+        description: "Уникальный идентификатор продукта."
+        tests:
+          - unique
+          - not_null
+      - name: product_name
+        description: "Название продукта."
+      - name: category
+        description: "Категория продукта, стандартизированная с помощью макроса standardize_category."
+        tests:
+          - accepted_values:
+              values: ['electronics', 'clothing', 'home']
+      - name: price
+        description: "Цена продукта."
+
+  - name: int_orders_enhanced
+    description: "Обогащенные данные заказов, объединенные с информацией о пользователях и продуктах."
+    columns:
+      - name: order_id
+        description: "Уникальный идентификатор заказа."
+      - name: user_id
+        description: "Идентификатор пользователя, который сделал заказ."
+      - name: product_id
+        description: "Идентификатор продукта."
+      - name: total_price
+        description: "Общая стоимость заказа (quantity * price)."
+      - name: days_since_signup
+        description: "Количество дней с момента регистрации пользователя до даты заказа."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "days_since_signup >= 0"
+  - name: fct_customer_orders
+    description: "Агрегированные данные по каждому пользователю, включая количество заказов, товаров и выручку."
+    columns:
+      - name: user_id
+        description: "Уникальный идентификатор пользователя."
+      - name: total_orders
+        description: "Общее количество заказов пользователя."
+      - name: total_quantity
+        description: "Общее количество товаров, купленных пользователем."
+      - name: total_revenue
+        description: "Общая сумма покупок пользователя."
+      - name: average_order_value
+        description: "Средняя сумма заказа пользователя."
+
+  - name: dim_product_sales
+    description: "Агрегированные данные по продажам продуктов, включая количество проданных товаров и выручку."
+    columns:
+      - name: product_id
+        description: "Уникальный идентификатор продукта."
+      - name: product_name
+        description: "Название продукта."
+      - name: category
+        description: "Категория продукта."
+      - name: total_quantity_sold
+        description: "Общее количество проданных товаров."
+      - name: total_revenue_generated
+        description: "Общая выручка от продажи продукта."
+      - name: average_price
+        description: "Средняя цена продажи продукта."

@@ -1,0 +1,9 @@
+{% macro standardize_category(category_column) %}
+    CASE
+        WHEN LOWER(TRIM({{ category_column }})) IN ('electronics', 'electronic devices') THEN 'electronics'
+        WHEN LOWER(TRIM({{ category_column }})) IN ('home goods', 'household items') THEN 'home goods'
+        WHEN LOWER(TRIM({{ category_column }})) IN ('books', 'literature') THEN 'books'
+        WHEN LOWER(TRIM({{ category_column }})) IN ('furniture', 'home furniture') THEN 'furniture'
+        ELSE LOWER(TRIM({{ category_column }}))
+    END
+{% endmacro %}
